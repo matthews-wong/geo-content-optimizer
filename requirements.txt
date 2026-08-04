@@ -1,0 +1,12 @@
+# Core runtime dependencies (offline scoring path).
+click>=8.1
+beautifulsoup4>=4.12
+
+# Optional: enables the Claude-enhanced suggestion path. Safe to omit — the tool
+# degrades gracefully to rule-based suggestions when this is absent or no
+# ANTHROPIC_API_KEY is set.
+anthropic>=0.40
+
+# Development / CI.
+pytest>=7.4
+ruff>=0.6

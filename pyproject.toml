@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-content-optimizer"
+version = "0.1.0"
+description = "A heuristic scorer for Generative Engine Optimization (GEO) — estimates how likely content is to be cited by AI answer engines."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Matthews Wong" }]
+keywords = ["geo", "generative-engine-optimization", "seo", "ai", "content", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = [
+    "click>=8.1",
+    "beautifulsoup4>=4.12",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.40"]
+dev = ["pytest>=7.4", "ruff>=0.6"]
+
+[project.scripts]
+geo-content-optimizer = "geooptimizer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/matthews-wong/geo-content-optimizer"
+
+[tool.setuptools.packages.find]
+include = ["geooptimizer*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
