@@ -7,8 +7,24 @@ import json
 import pytest
 from click.testing import CliRunner
 
-from geooptimizer.cli import main
+from geooptimizer.cli import _grade, main
 from geooptimizer.io_utils import html_to_markdown, load_content
+
+
+@pytest.mark.parametrize(
+    "total, band",
+    [
+        # Each threshold is checked exactly at the boundary and just below it,
+        # pinning the >= comparisons so a band can't silently drift by a point.
+        (100.0, "A"), (85.0, "A"), (84.9, "B"),
+        (70.0, "B"), (69.9, "C"),
+        (55.0, "C"), (54.9, "D"),
+        (40.0, "D"), (39.9, "F"),
+        (0.0, "F"),
+    ],
+)
+def test_grade_boundaries(total, band):
+    assert _grade(total).startswith(band + " ")
 
 
 def test_load_markdown(tmp_path):

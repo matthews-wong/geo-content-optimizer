@@ -7,7 +7,9 @@ files.
 
 from __future__ import annotations
 
-from geooptimizer.score import GeoResult, compute_score
+import pytest
+
+from geooptimizer.score import SIGNALS, GeoResult, compute_score
 
 
 def test_strong_beats_weak(strong_text, weak_text):
@@ -59,3 +61,32 @@ def test_empty_text_scores_zero_ish():
     result = compute_score("")
     assert isinstance(result, GeoResult)
     assert result.total <= 5.0
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "   ",            # whitespace only
+        "\n\n\t\n",       # blank lines only
+        "#",              # bare heading marker, no text
+        "# only heading", # heading with no body prose
+        "|||",            # malformed table pipes
+        "123 456 789",    # digits but no words (word count guard -> no /0)
+        "?!.",            # punctuation only
+    ],
+)
+def test_degenerate_input_scores_without_crashing(text):
+    """Malformed / near-empty input must score in range, not raise (e.g. div-by-zero)."""
+    result = compute_score(text)
+    assert isinstance(result, GeoResult)
+    assert 0.0 <= result.total <= 100.0
+    assert len(result.sub_scores) == len(SIGNALS)
+    # Every detector must also stay within its declared [0, 100] contract.
+    assert all(0.0 <= s.score <= 100.0 for s in result.sub_scores)
+
+
+def test_total_equals_weighted_sum_exactly_on_known_input():
+    """The aggregate is a pure weighted sum of the sub-scores (no drift)."""
+    result = compute_score("# What is X?\n\nX is a tool. It grew 10% in 2023.")
+    manual = round(sum(s.score * s.weight for s in result.sub_scores), 1)
+    assert result.total == manual
